@@ -1,0 +1,9 @@
+{% for app in known_apps.keys %}
+  <div class="form-check mx-2">
+    <input class="form-check-input" type="checkbox" x-model="show{{app|capfirst}}" id="show{{app|capfirst}}">
+    <label class="form-check-label" for="show{{app|capfirst}}">
+      Show {{app|capfirst}}-only {{section}}
+    </label>
+  </div>
+{% endfor %}
+

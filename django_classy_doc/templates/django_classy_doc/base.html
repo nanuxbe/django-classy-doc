@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{show_backToTop: false, light: !window.matchMedia('(prefers-color-scheme:dark)').matches && !JSON.parse(localStorage.getItem('useLight')) === false}" @scroll.window="show_backToTop = window.pageYOffset > 50" :data-bs-theme="light ? 'light' : 'dark'">
+<head>
+    <meta charset="utf-8">
+    <title>{{ klass.name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <template x-if="light">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/PrismJS/prism@1/themes/prism.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    </template>
+    <template x-if="!light">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    </template>
+    {% if push_state_url %}
+        <link rel="canonical" href="{{ push_state_url }}">
+        <script type="text/javascript">
+            window.history.replaceState({}, '', '{{ push_state_url }}');
+        </script>
+    {% endif %}
+    
+    <!-- script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style> 
+      .scrollTop{
+        position: fixed;
+        bottom: 30px;
+        right: 60px;
+        overflow: hidden;
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <div x-show="show_backToTop">
+      <div id="back_To_Top"
+           @click="window.scrollTo({top: 0, behavior: 'smooth'})"
+           class="scrollTop btn btn-outline-primary"
+           title="Back to top"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="display: inline-block; vertical-align: text-bottom;"><path d="M4.75 3.5a.75.75 0 0 1 0-1.5h14.5a.75.75 0 0 1 0 1.5H4.75Zm.47 9.47a.749.749 0 1 0 1.06 1.06l4.97-4.969V21.25a.75.75 0 0 0 1.5 0V9.061l4.97 4.969a.749.749 0 1 0 1.06-1.06l-6.25-6.25a.749.749 0 0 0-1.06 0l-6.25 6.25Z"></path></svg>
+      </div>
+    </div>
+
+    <div class="container">
+      <article id="main" class="pb-5">
+        {% block content %}
+        {% endblock %}
+      </article>
+    </div> <!-- /container -->
+    <script src="https://cdn.jsdelivr.net/gh/PrismJS/prism@1/prism.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/gh/PrismJS/prism@1/plugins/autoloader/prism-autoloader.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  </body>
+</html>
