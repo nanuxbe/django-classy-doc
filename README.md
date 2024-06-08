@@ -88,3 +88,31 @@ A list of modules (that would otherwise not be matched) that *django-classy-doc*
 ### `CLASSY_DOC_ALSO_EXCLUDE`
 
 A list of modules (that would otherwise be matched) that *django-classy-doc* **should not** try to document. This defaults to an empty list.
+
+# Recipes
+
+## CCBV
+
+In order to replicate [CCBV](https://ccbv.co.uk), these are the settings you should set:
+
+```python
+CLASSY_DOC_BASES = ['django']
+CLASSY_DOC_MODULE_TYPES = [
+    'views.generic.base',
+    'views.generic.dates',
+    'views.generic.detail',
+    'views.generic.edit',
+    'views.generic.list',
+]
+CLASSY_DOC_KNOWN_APPS = {}
+```
+
+## CDRF
+
+In order to replicate [CDRF](https://cdrf.co), these are the settings you should set:
+
+```python
+CLASSY_DOC_BASES = ['rest_framework']
+CLASSY_DOC_MODULE_TYPES = ['generics', 'mixins', 'pagination', 'serializers', 'views', 'viewsets']
+CLASSY_DOC_KNOWN_APPS = {}
+```
