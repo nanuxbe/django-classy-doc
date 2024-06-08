@@ -36,8 +36,6 @@ def serve(port, output):
 
 
 def gen_index(apps, output):
-    from pprint import pprint
-    pprint(apps)
     index = render_to_string('django_classy_doc/index.html', {
         'apps': {
             app: {
@@ -127,7 +125,6 @@ def classify(klass, obj, name=None, mod=None, *ignored):
         }
 
     def tf_everything(attr):
-        print(attr)
         return {
             'name': attr[0],
             'type': attr[1],
@@ -234,7 +231,7 @@ class Command(BaseCommand):
         if len(klasses) == 0:
             klasses.extend(getattr(settings, 'CLASSY_DOC_ALSO_INCLUDE', CLASSY_DOC_ALSO_INCLUDE))
 
-            for app in settings.INSTALLED_APPS:
+            for app in list(settings.INSTALLED_APPS) + ['django']:
                 if not any([app.startswith(base) for base in getattr(settings, 'CLASSY_DOC_BASES', CLASSY_DOC_BASES)]):
                     continue
 
@@ -242,12 +239,10 @@ class Command(BaseCommand):
                     mod_string = f'{app}.{mod_name}'
                     found = False
                     for mods in getattr(settings, 'CLASSY_DOC_KNOWN_APPS', CLASSY_DOC_KNOWN_APPS).values():
-                        print(f'testing {mod_string} against', mods)
                         if any([f'{mod_string}.'.startswith(f'{mod}.') for mod in mods]):
                             found = True
                             break
                     if found:
-                        print(f'excluding {mod_string} (known app)')
                         continue
 
                     try:
@@ -259,7 +254,6 @@ class Command(BaseCommand):
                             full_name = f'{app}.{mod_name}.{name}'
 
                             if full_name in getattr(settings, 'CLASSY_DOC_ALSO_EXCLUDE', CLASSY_DOC_ALSO_EXCLUDE):
-                                print(f'excluding {full_name} (exclude)')
                                 continue
 
                             klasses.append(full_name)
