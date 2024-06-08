@@ -31,7 +31,7 @@ def display_if(value):
         module_name = value['defining_class'][0]
 
     for name, mods in from_map.items():
-        if any([module_name.startswith(f'{mod}.') for mod in mods]):
+        if any([module_name.startswith(f'{mod}.') or module_name == mod for mod in mods]):
             return f'show{capfirst(name)}'
 
     return 'true'
