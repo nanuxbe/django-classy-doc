@@ -4,6 +4,14 @@
 
 ## Installation
 
+### From PyPI
+
+```bash
+pip install django-classy-doc
+```
+
+### From the repo
+
 ```bash
 pip install -e https://gitlab.levitnet.be/levit/django-classy-doc.git
 ```
