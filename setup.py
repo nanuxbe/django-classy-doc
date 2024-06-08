@@ -13,7 +13,7 @@ setup(
     packages=['django_classy_doc'],
     include_package_data=True,
     license='MIT License',  # example license
-    description='Package to generate ccbv.co.uk-style documentation for your own code',
+    description='Django package to generate ccbv.co.uk-style documentation for your own code',
     long_description=README,
     long_description_content_type="text/markdown",
     url='https://levit.be',
