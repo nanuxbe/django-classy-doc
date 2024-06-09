@@ -12,8 +12,11 @@ from django.utils.module_loading import import_string
 from django.template.loader import render_to_string
 
 from ...utils import DefaultOrderedDict
-from ...settings import (CLASSY_DOC_BASES, CLASSY_DOC_ALSO_INCLUDE, CLASSY_DOC_MODULE_TYPES,
-                         CLASSY_DOC_ALSO_EXCLUDE, CLASSY_DOC_KNOWN_APPS)
+from ... import settings as app_settings
+
+
+if not hasattr(inspect, 'getargspec'):
+    inspect.getargspec = inspect.getfullargspec
 
 
 def serve(port, output):
@@ -205,10 +208,8 @@ def build(thing):
     obj, name = pydoc.resolve(thing, forceload=0)
 
     if not any(
-        [obj.__module__.startswith(base) for base in getattr(settings, 'CLASSY_DOC_BASES', CLASSY_DOC_BASES)]
-    ) and f'{obj.__module__}.{obj.__name__}' not in getattr(
-        settings, 'CLASSY_DOC_ALSO_INCLUDE', CLASSY_DOC_ALSO_INCLUDE
-    ):
+        [obj.__module__.startswith(base) for base in app_settings.CLASSY_DOC_BASES]
+    ) and f'{obj.__module__}.{obj.__name__}' not in app_settings.CLASSY_DOC_ALSO_INCLUDE:
         return False
 
     return classify(klass, obj, name)
@@ -229,16 +230,16 @@ class Command(BaseCommand):
         apps = collections.defaultdict(lambda: collections.defaultdict(list))
 
         if len(klasses) == 0:
-            klasses.extend(getattr(settings, 'CLASSY_DOC_ALSO_INCLUDE', CLASSY_DOC_ALSO_INCLUDE))
+            klasses.extend(app_settings.CLASSY_DOC_ALSO_INCLUDE)
 
-            for app in list(settings.INSTALLED_APPS) + ['django']:
-                if not any([app.startswith(base) for base in getattr(settings, 'CLASSY_DOC_BASES', CLASSY_DOC_BASES)]):
+            for app in list(settings.INSTALLED_APPS) + list(app_settings.CLASSY_DOC_NON_INSTALLED_APPS):
+                if not any([app.startswith(base) for base in app_settings.CLASSY_DOC_BASES]):
                     continue
 
-                for mod_name in getattr(settings, 'CLASSY_DOC_MODULE_TYPES', CLASSY_DOC_MODULE_TYPES):
+                for mod_name in app_settings.CLASSY_DOC_MODULE_TYPES:
                     mod_string = f'{app}.{mod_name}'
                     found = False
-                    for mods in getattr(settings, 'CLASSY_DOC_KNOWN_APPS', CLASSY_DOC_KNOWN_APPS).values():
+                    for mods in app_settings.CLASSY_DOC_KNOWN_APPS.values():
                         if any([f'{mod_string}.'.startswith(f'{mod}.') for mod in mods]):
                             found = True
                             break
@@ -253,7 +254,7 @@ class Command(BaseCommand):
 
                             full_name = f'{app}.{mod_name}.{name}'
 
-                            if full_name in getattr(settings, 'CLASSY_DOC_ALSO_EXCLUDE', CLASSY_DOC_ALSO_EXCLUDE):
+                            if full_name in app_settings.CLASSY_DOC_ALSO_EXCLUDE:
                                 continue
 
                             klasses.append(full_name)
@@ -293,7 +294,7 @@ class Command(BaseCommand):
 
             output = render_to_string('django_classy_doc/klass.html', {
                 'klass': structure,
-                'known_apps': getattr(settings, 'CLASSY_DOC_KNOWN_APPS', CLASSY_DOC_KNOWN_APPS),
+                'known_apps': app_settings.CLASSY_DOC_KNOWN_APPS,
             })
 
             filename = 'classify.html'

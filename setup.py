@@ -9,14 +9,15 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django_classy_doc',
-    version='0.0.1',
+    version='0.0.2',
     packages=['django_classy_doc'],
     include_package_data=True,
     license='MIT License',  # example license
     description='Django package to generate ccbv.co.uk-style documentation for your own code',
     long_description=README,
     long_description_content_type="text/markdown",
-    url='https://levit.be',
+    homepage='https://levit.be',
+    repository='https://github.com/nanuxbe/django-classy-doc',
     author='LevIT SCS',
     author_email='info@levit.be',
     classifiers=[

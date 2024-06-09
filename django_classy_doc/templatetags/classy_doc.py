@@ -2,14 +2,14 @@ from django import template
 from django.conf import settings
 from django.utils.text import capfirst
 
-from django_classy_doc.settings import CLASSY_DOC_KNOWN_APPS
+from django_classy_doc import settings as app_settings
 
 register = template.Library()
 
 
 @register.filter
 def class_from(value, arg):
-    from_map = getattr(settings, 'CLASSY_DOC_KNOWN_APPS', CLASSY_DOC_KNOWN_APPS)
+    from_map = app_settings.CLASSY_DOC_KNOWN_APPS
 
     try:
         return any([value['defining_class'].__module__.startswith(f'{mod}.') for mod in from_map.get(arg, [])])
@@ -22,7 +22,7 @@ def class_from(value, arg):
 
 @register.filter
 def display_if(value):
-    from_map = getattr(settings, 'CLASSY_DOC_KNOWN_APPS', CLASSY_DOC_KNOWN_APPS)
+    from_map = app_settings.CLASSY_DOC_KNOWN_APPS
 
     try:
         module_name = value['defining_class'].__module__
@@ -39,7 +39,7 @@ def display_if(value):
 
 @register.simple_tag
 def init_show_vars():
-    from_map = getattr(settings, 'CLASSY_DOC_KNOWN_APPS', CLASSY_DOC_KNOWN_APPS)
+    from_map = app_settings.CLASSY_DOC_KNOWN_APPS
 
     return ', '.join([f'show{capfirst(app)}: false' for app in from_map.keys()])
 

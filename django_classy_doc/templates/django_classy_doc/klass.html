@@ -129,8 +129,7 @@
           >
             <div @click="open = !open" class="method-header d-flex justify-content-between px-3 mt-3 border border-secondary rounded">
               <pre><code class="language-python">{% if value.type|slice:"-8" == "property" %}@property
-  def {{name}}(self){% elif value.arguments %}def {{ name }}{{ value.arguments }}{% else %}@property
-  def {{name}}(self){% endif %}</code></pre>
+  def {{name}}(self){% elif value.arguments %}def {{ name }}{{ value.arguments }}{% else %}def {{name}}(self){% endif %}</code></pre>
               <div class="align-self-center">
                 <span class="text-muted">{{ value|module }}.</span><a class="text-primary">{{ value|class_name }}</a>
               </div>

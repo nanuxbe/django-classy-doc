@@ -97,6 +97,11 @@ A list of modules (that would otherwise not be matched) that *django-classy-doc*
 
 A list of modules (that would otherwise be matched) that *django-classy-doc* **should not** try to document. This defaults to an empty list.
 
+
+### `CLASSY_DOC_NON_INSTALLED_APPS``
+
+A list of modules, not present in `INSTALLED_APPS` to include in the search for modules. This is mostly useful if you want to document DJango itself.
+
 # Recipes
 
 ## CCBV
@@ -104,13 +109,14 @@ A list of modules (that would otherwise be matched) that *django-classy-doc* **s
 In order to replicate [CCBV](https://ccbv.co.uk), these are the settings you should set:
 
 ```python
-CLASSY_DOC_BASES = ['django']
+CLASSY_DOC_BASES = ['django.views.generic']
+CLASSY_DOC_NON_INSTALLED_APPS = ['django.views.generic']
 CLASSY_DOC_MODULE_TYPES = [
-    'views.generic.base',
-    'views.generic.dates',
-    'views.generic.detail',
-    'views.generic.edit',
-    'views.generic.list',
+    'base',
+    'dates',
+    'detail',
+    'edit',
+    'list',
 ]
 CLASSY_DOC_KNOWN_APPS = {}
 ```
@@ -122,5 +128,36 @@ In order to replicate [CDRF](https://cdrf.co), these are the settings you should
 ```python
 CLASSY_DOC_BASES = ['rest_framework']
 CLASSY_DOC_MODULE_TYPES = ['generics', 'mixins', 'pagination', 'serializers', 'views', 'viewsets']
+CLASSY_DOC_KNOWN_APPS = {}
+```
+
+## CDDB
+
+In order to replicate [CDDB](https://cddb.levit.be), these are the settings you should set:
+
+```python
+CLASSY_DOC_BASES = ['django.db', 'django.db.models']
+CLASSY_DOC_NON_INSTALLED_APPS = ['django.db.models', 'django.db']
+CLASSY_DOC_MODULE_TYPES = [
+    'base',
+    'fields',
+    'enums',
+    'expressions',
+    'constraints',
+    'indexes',
+    'lookups',
+    'aggregates',
+    'constants',
+    'deletion',
+    'functions',
+    'manager',
+    'query_utils',
+    'sql',
+    'options',
+    'query',
+    'signals',
+    'utils',
+    'transaction',
+]
 CLASSY_DOC_KNOWN_APPS = {}
 ```

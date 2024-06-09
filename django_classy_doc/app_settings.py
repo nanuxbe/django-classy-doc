@@ -1,0 +1,11 @@
+CLASSY_DOC_BASES = ['']
+CLASSY_DOC_NON_INSTALLED_APPS = []
+CLASSY_DOC_ALSO_INCLUDE = []
+CLASSY_DOC_MODULE_TYPES = [
+    'models',
+    'views',
+]
+CLASSY_DOC_ALSO_EXCLUDE = []
+CLASSY_DOC_KNOWN_APPS = {
+    'Django': ['django']
+}
