@@ -16,8 +16,7 @@ setup(
     description='Django package to generate ccbv.co.uk-style documentation for your own code',
     long_description=README,
     long_description_content_type="text/markdown",
-    homepage='https://levit.be',
-    repository='https://github.com/nanuxbe/django-classy-doc',
+    url='https://github.com/nanuxbe/django-classy-doc',
     author='LevIT SCS',
     author_email='info@levit.be',
     classifiers=[
