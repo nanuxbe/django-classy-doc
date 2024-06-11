@@ -1,0 +1,3 @@
+recursive-include django_classy_doc *
+recursive-exclude * *.pyc __pycache__ .DS_Store
+include README.md

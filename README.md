@@ -40,7 +40,7 @@ Set these in your `settings.py` file.
 
 ### `CLASSY_DOC_BASES`
 
-This is the list of strings of the base modules you want to document, if you leave it unset, *djang-classy-doc* will document every application from your `INSTALLED_APPS`
+This is the list of strings of the base modules you want to document, if you leave it unset, *django-classy-doc* will document every application from your `INSTALLED_APPS`
 
 *django-classy-docs* will string-match everything from your `INSTALLED_APPS` that **starts with** any of the mentioned strings
 
@@ -98,7 +98,7 @@ A list of modules (that would otherwise not be matched) that *django-classy-doc*
 A list of modules (that would otherwise be matched) that *django-classy-doc* **should not** try to document. This defaults to an empty list.
 
 
-### `CLASSY_DOC_NON_INSTALLED_APPS``
+### `CLASSY_DOC_NON_INSTALLED_APPS`
 
 A list of modules, not present in `INSTALLED_APPS` to include in the search for modules. This is mostly useful if you want to document DJango itself.
 
