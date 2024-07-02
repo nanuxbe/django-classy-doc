@@ -18,6 +18,8 @@ pip install -e https://gitlab.levitnet.be/levit/django-classy-doc.git
 
 ## Getting started
 
+First add `'django_classy_doc',` to your `INSTALLED_APPS` in your `settings.py` file.
+
 To generate the documentation, run
 
 ```bash
