@@ -1,0 +1,15 @@
+deploy:
+  script:
+    - cd /home/levit/django-classy-doc; git stash; git pull; git stash apply
+    - cd /home/levit/django-classy-doc; source venv/bin/activate; pip install -e .
+    - cd /home/levit/django-classy-doc; source venv/bin/activate; rm -rf output/*; ./manage.py classify
+  variables:
+    GIT_STRATEGY: none
+  environment:
+    name: production
+    url: https://cddb.levit.be
+  tags:
+    - maggie
+  only:
+    - main
+
