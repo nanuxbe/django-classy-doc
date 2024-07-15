@@ -159,7 +159,6 @@ def classify(klass, obj, name=None, mod=None, *ignored):
             tf = globals()[f'tf_{target}']
             tf_ed = tf(attribute)
             name = tf_ed.pop('name')
-            print(target, name)
             klass[target][name].append(tf_ed)
 
         if issubclass(obj, Model):
