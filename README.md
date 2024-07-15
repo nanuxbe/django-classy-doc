@@ -20,7 +20,7 @@ pip install -e https://gitlab.levitnet.be/levit/django-classy-doc.git
 
 First add `'django_classy_doc',` to your `INSTALLED_APPS` in your `settings.py` file.
 
-To generate the documentation, run
+To generate the documentation statically, run
 
 ```bash
 ./manage.py classify
@@ -32,6 +32,17 @@ For more usage information run
 
 ```bash
 ./manage.py classify --help
+```
+
+If instead (or alongside) of generating the documentation statically, 
+you can also have Django render the documentation by adding the following line 
+to your `urlpatterns` in `urls.py`
+
+```python
+urlpatterns = [
+  ...
+  path('__doc__/', include('django_classy_doc.urls')),
+]
 ```
 
 ## Configuration
@@ -122,6 +133,34 @@ CLASSY_DOC_MODULE_TYPES = [
 ]
 CLASSY_DOC_KNOWN_APPS = {}
 ```
+
+If you'd like to include `django.contrib.views` in your documentation, 
+you'll first have to include them in your `urls.py`:
+
+```python
+urlpatterns = [
+  ...
+  path('accounts/', include('django.contrib.auth.urls')),
+  ...
+]
+```
+
+Once this is done, you can then use the following settings:
+
+```python
+CLASSY_DOC_BASES = ['django.views.generic', 'django.contrib.auth']
+CLASSY_DOC_NON_INSTALLED_APPS = ['django.views.generic']
+CLASSY_DOC_MODULE_TYPES = [
+    'base',
+    'dates',
+    'detail',
+    'edit',
+    'list',
+    'views',
+]
+CLASSY_DOC_KNOWN_APPS = {}
+```
+
 
 ## CDRF
 
