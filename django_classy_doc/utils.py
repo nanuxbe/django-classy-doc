@@ -1,10 +1,12 @@
 import builtins
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
+from copy import copy
 import inspect
 import pydoc
 import sys
 
 from django.conf import settings
+from django.utils.module_loading import import_string
 from django.utils.html import escape
 
 from . import settings as app_settings
@@ -237,3 +239,53 @@ def build_context(klass, exit=True):
     structure['methods'] = OrderedDict(sorted_methods)
 
     return structure
+
+
+def build_list_of_documentables(apps=None):
+    if apps is None:
+        apps = defaultdict(lambda: defaultdict(list))
+    klasses = copy(app_settings.CLASSY_DOC_ALSO_INCLUDE)
+
+    for app in list(settings.INSTALLED_APPS) + list(app_settings.CLASSY_DOC_NON_INSTALLED_APPS):
+        if not any([app.startswith(base) for base in app_settings.CLASSY_DOC_BASES]):
+            continue
+
+        for mod_name in app_settings.CLASSY_DOC_MODULE_TYPES:
+            mod_string = f'{app}.{mod_name}'
+            found = False
+            for mods in app_settings.CLASSY_DOC_KNOWN_APPS.values():
+                if any([f'{mod_string}.'.startswith(f'{mod}.') for mod in mods]):
+                    found = True
+                    break
+            if found:
+                continue
+
+            try:
+                module = import_string(mod_string)
+                for name, obj in inspect.getmembers(module):
+                    if not inspect.isclass(obj) or not obj.__module__.startswith(f'{app}.{mod_name}'):
+                        continue
+
+                    full_name = f'{app}.{mod_name}.{name}'
+
+                    if full_name in app_settings.CLASSY_DOC_ALSO_EXCLUDE:
+                        continue
+
+                    klasses.append(full_name)
+                    apps[app][mod_name].append((name, full_name))
+            except ImportError as e:
+                print(f'Unable to import {app}.{mod_name}', e)
+
+    return apps, klasses
+
+
+def get_index_context(apps):
+    return {
+        'apps': {
+            app: {
+                mod: klasses
+                for mod, klasses in modules.items()
+            }
+            for app, modules in apps.items()
+        },
+    }

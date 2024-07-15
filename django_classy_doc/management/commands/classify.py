@@ -1,13 +1,11 @@
 import collections
-import inspect
 import os
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.utils.module_loading import import_string
 from django.template.loader import render_to_string
 
-from ...utils import build_context
+from ...utils import build_context, build_list_of_documentables, get_index_context
 from ... import settings as app_settings
 
 
@@ -31,15 +29,7 @@ def serve(port, output):
 
 
 def gen_index(apps, output):
-    index = render_to_string('django_classy_doc/index.html', {
-        'apps': {
-            app: {
-                mod: klasses
-                for mod, klasses in modules.items()
-            }
-            for app, modules in apps.items()
-        },
-    })
+    index = render_to_string('django_classy_doc/index.html', get_index_context(apps))
     with open(output, 'w') as f:
         f.write(index)
 
@@ -66,37 +56,7 @@ class Command(BaseCommand):
         apps = collections.defaultdict(lambda: collections.defaultdict(list))
 
         if len(klasses) == 0:
-            klasses.extend(app_settings.CLASSY_DOC_ALSO_INCLUDE)
-
-            for app in list(settings.INSTALLED_APPS) + list(app_settings.CLASSY_DOC_NON_INSTALLED_APPS):
-                if not any([app.startswith(base) for base in app_settings.CLASSY_DOC_BASES]):
-                    continue
-
-                for mod_name in app_settings.CLASSY_DOC_MODULE_TYPES:
-                    mod_string = f'{app}.{mod_name}'
-                    found = False
-                    for mods in app_settings.CLASSY_DOC_KNOWN_APPS.values():
-                        if any([f'{mod_string}.'.startswith(f'{mod}.') for mod in mods]):
-                            found = True
-                            break
-                    if found:
-                        continue
-
-                    try:
-                        module = import_string(mod_string)
-                        for name, obj in inspect.getmembers(module):
-                            if not inspect.isclass(obj) or not obj.__module__.startswith(f'{app}.{mod_name}'):
-                                continue
-
-                            full_name = f'{app}.{mod_name}.{name}'
-
-                            if full_name in app_settings.CLASSY_DOC_ALSO_EXCLUDE:
-                                continue
-
-                            klasses.append(full_name)
-                            apps[app][mod_name].append((name, full_name))
-                    except ImportError as e:
-                        print(f'Unable to import {app}.{mod_name}', e)
+            klasses = build_list_of_documentables(apps)
 
         for klass in klasses:
             structure = build_context(klass)
