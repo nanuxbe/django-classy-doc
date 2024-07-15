@@ -202,3 +202,24 @@ CLASSY_DOC_MODULE_TYPES = [
 ]
 CLASSY_DOC_KNOWN_APPS = {}
 ```
+
+
+## CDRF
+
+In order to replicate [CDF](https://cdf.9vo.lt), these are the settings you should set:
+
+```python
+CLASSY_DOC_BASES = ['django.forms']
+CLASSY_DOC_NON_INSTALLED_APPS = ['django.forms']
+CLASSY_DOC_MODULE_TYPES = [
+    'boundfield',
+    'fields',
+    'forms',
+    'formsets',
+    'models',
+    'renderers',
+    'widgets',
+]
+CLASSY_DOC_KNOWN_APPS = {}
+```
+
