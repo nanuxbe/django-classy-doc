@@ -49,14 +49,23 @@ class Command(BaseCommand):
                             default='output', help='Relative path for output files to be saved')
         parser.add_argument('-p', '--port', action='store', dest='port', type=int, default=8000)
         parser.add_argument('-s', '--serve', action='store_true', dest='serve')
+        parser.add_argument('--clean', action='store_true', dest='clean',
+                            help='Clear html files from output directory before generating new files')
 
     def handle(self, *args, **options):
+        if options['clean']:
+            for filename in os.listdir(os.path.join(settings.BASE_DIR, options['output'])):
+                if not filename.endswith('.html'):
+                    continue
+                file_path = os.path.join(settings.BASE_DIR, options['output'], filename)
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
 
         klasses = options['klass']
         apps = collections.defaultdict(lambda: collections.defaultdict(list))
 
         if len(klasses) == 0:
-            klasses = build_list_of_documentables(apps)
+            apps, klasses = build_list_of_documentables(apps)
 
         for klass in klasses:
             structure = build_context(klass)
