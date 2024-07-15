@@ -7,6 +7,8 @@ import sys
 
 from django.conf import settings
 from django.db.models import Model
+from django.forms.models import ModelForm
+from django.forms.forms import BaseForm
 from django.utils.module_loading import import_string
 from django.utils.html import escape
 
@@ -142,6 +144,9 @@ def classify(klass, obj, name=None, mod=None, *ignored):
 
         for attribute in get_attrs(cls):
 
+            if attribute[0] == 'Meta':
+                continue
+
             if attribute[1] == 'data':
                 target = 'attributes'
             elif (
@@ -161,8 +166,31 @@ def classify(klass, obj, name=None, mod=None, *ignored):
             name = tf_ed.pop('name')
             klass[target][name].append(tf_ed)
 
-        if issubclass(obj, Model):
-            klass['Meta'] = obj._meta.original_attrs
+        if issubclass(cls, BaseForm) and hasattr(cls, 'declared_fields'):
+            for field, field_type in cls.declared_fields.items():
+                klass['fields'][field].append({
+                    'name': field,
+                    'field_type': field_type.__class__.__name__,
+                    'defining_class': (cls.__module__, cls.__name__)
+                })
+
+    if issubclass(obj, Model):
+        klass['Meta'] = obj._meta.original_attrs
+    elif issubclass(obj, ModelForm):
+        klass['Meta'] = {
+            attr: str(getattr(obj.Meta, attr))
+            for attr in dir(obj.Meta)
+            if not attr.startswith('__')
+        }
+    if issubclass(cls, BaseForm) and hasattr(cls, 'base_fields'):
+        for field, field_type in cls.base_fields.items():
+            if field in klass['fields']:
+                continue
+            klass['fields'][field].append({
+                'name': field,
+                'field_type': field_type.__class__.__name__,
+                'defining_class': ('Auto', '')
+            })
 
     return klass
 
@@ -254,6 +282,7 @@ def build_list_of_documentables(apps=None):
 
         for mod_name in app_settings.CLASSY_DOC_MODULE_TYPES:
             mod_string = f'{app}.{mod_name}'
+            print(f'Trying {mod_string}')
             found = False
             for mods in app_settings.CLASSY_DOC_KNOWN_APPS.values():
                 if any([f'{mod_string}.'.startswith(f'{mod}.') for mod in mods]):

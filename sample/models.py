@@ -1,6 +1,7 @@
 from django.conf import settings
-from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+from django import forms
 
 
 class Category(models.Model):
@@ -103,3 +104,27 @@ class Moodtracker(models.Model):
 
     def __str__(self):
         return str(self.date)
+
+
+class CategoryForm(forms.ModelForm):
+
+    name = forms.CharField()
+
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
+class BaseProductForm(forms.ModelForm):
+
+    name = forms.CharField()
+
+    class Meta:
+        model = Product
+        fields = ['name']
+
+
+class ProductForm(BaseProductForm):
+    class Meta:
+        model = Product
+        fields = '__all__'
