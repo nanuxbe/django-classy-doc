@@ -6,6 +6,7 @@ import pydoc
 import sys
 
 from django.conf import settings
+from django.db.models import Model
 from django.utils.module_loading import import_string
 from django.utils.html import escape
 
@@ -140,8 +141,6 @@ def classify(klass, obj, name=None, mod=None, *ignored):
             continue
 
         for attribute in get_attrs(cls):
-            if attribute[0] == 'Meta' or attribute[0].startswith('__'):
-                continue
 
             if attribute[1] == 'data':
                 target = 'attributes'
@@ -160,7 +159,11 @@ def classify(klass, obj, name=None, mod=None, *ignored):
             tf = globals()[f'tf_{target}']
             tf_ed = tf(attribute)
             name = tf_ed.pop('name')
+            print(target, name)
             klass[target][name].append(tf_ed)
+
+        if issubclass(obj, Model):
+            klass['Meta'] = obj._meta.original_attrs
 
     return klass
 

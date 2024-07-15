@@ -5,14 +5,19 @@
   <div class="article-heading d-flex justify-content-between py-3">
     <h1><small class="text-muted">class</small>&nbsp;<span class="text-primary">{{klass.name}}</span></h1>
     <ul class="anchor-links nav">
-      {% if klass.attributes %}
+      {% if klass.Meta %}
         <li class="nav-item">
-          <a class="nav-link" href="#attributes">Attributes</a>
+          <a class="nav-link" href="#Meta">Meta</a>
         </li>
       {% endif %}
       {% if klass.fields %}
         <li class="nav-item">
           <a class="nav-link" href="#fields">Fields</a>
+        </li>
+      {% endif %}
+      {% if klass.attributes %}
+        <li class="nav-item">
+          <a class="nav-link" href="#attributes">Attributes</a>
         </li>
       {% endif %}
       {% if klass.methods %}
@@ -41,33 +46,21 @@
     </ol>
   </section>
 
-  {% if klass.attributes %}
+  {% if klass.Meta %}
     <section x-data="{ {% init_show_vars %} }" class="mt-5">
       <div class="attributes-heading d-flex justify-content-between">
-        <h2><a name="attributes">Attributes</a></h2>
-        <form class="d-flex">
-          {% include './show_checkboxes.html' with section='attributes' %}
-        </form>
+        <h2><a name="Meta">Meta</a></h2>
       </div>
       <table class="table table-striped">
         <thead>
-          <tr><th>Attribute</th><th>Value</th><th>Defined in</th></tr>
+          <tr><th>Attribute</th><th>Value</th></tr>
         </thead>
         <tbody>
-          {% for name, attributes in klass.attributes.items %}
-            {% with value=attributes|last %}
-              {% for attribute in attributes reversed %}
-                <template 
-                  x-if="{{value|display_if}}"
-                >
-                  <tr class="{% if not forloop.first %}text-decoration-line-through text-muted{% endif %}">
-                    <td><code>{{name}}</code></td>
-                    <td><code class="language-python" style="white-space: pre-wrap; word-wrap: break-word;">{{attribute.object}}</code></td>
-                    <td><small class="text-muted">{{attribute.defining_class.0}}.</small><a class="text-primary">{{attribute.defining_class.1}}</a></td>
-                  </tr>
-                </template>
-              {% endfor %}
-            {% endwith %}
+          {% for name, value in klass.Meta.items %}
+             <tr>
+               <td><code>{{name}}</code></td>
+               <td><code class="language-python" style="white-space: pre-wrap; word-wrap: break-word;">{{value}}</code></td>
+             </tr>
           {% endfor %}
         </tbody>
       </table>
@@ -102,6 +95,39 @@
                       {% endif %}
                     </td>
                     <td><small class="text-muted">{{declaration.defining_class.0}}.</small><a class="text-primary">{{declaration.defining_class.1}}</a></td>
+                  </tr>
+                </template>
+              {% endfor %}
+            {% endwith %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  {% endif %}
+
+  {% if klass.attributes %}
+    <section x-data="{ {% init_show_vars %} }" class="mt-5">
+      <div class="attributes-heading d-flex justify-content-between">
+        <h2><a name="attributes">Attributes</a></h2>
+        <form class="d-flex">
+          {% include './show_checkboxes.html' with section='attributes' %}
+        </form>
+      </div>
+      <table class="table table-striped">
+        <thead>
+          <tr><th>Attribute</th><th>Value</th><th>Defined in</th></tr>
+        </thead>
+        <tbody>
+          {% for name, attributes in klass.attributes.items %}
+            {% with value=attributes|last %}
+              {% for attribute in attributes reversed %}
+                <template 
+                  x-if="{{value|display_if}}"
+                >
+                  <tr class="{% if not forloop.first %}text-decoration-line-through text-muted{% endif %}">
+                    <td><code>{{name}}</code></td>
+                    <td><code class="language-python" style="white-space: pre-wrap; word-wrap: break-word;">{{attribute.object}}</code></td>
+                    <td><small class="text-muted">{{attribute.defining_class.0}}.</small><a class="text-primary">{{attribute.defining_class.1}}</a></td>
                   </tr>
                 </template>
               {% endfor %}
