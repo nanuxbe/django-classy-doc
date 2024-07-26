@@ -80,7 +80,7 @@
           <tr><th>Attribute</th><th>Type</th><th>Defined in</th></tr>
         </thead>
         <tbody>
-          {% for name, declarations in klass|field_items %}
+          {% for name, declarations in klass|items:'fields' %}
             {% with value=declarations|last %}
               {% for declaration in declarations reversed %}
                 <template
@@ -118,7 +118,7 @@
           <tr><th>Attribute</th><th>Value</th><th>Defined in</th></tr>
         </thead>
         <tbody>
-          {% for name, attributes in klass.attributes.items %}
+          {% for name, attributes in klass|items:'attributes' %}
             {% with value=attributes|last %}
               {% for attribute in attributes reversed %}
                 <template 
@@ -146,7 +146,7 @@
           {% include './show_checkboxes.html' with section='methods' %}
         </form>
       </div>
-      {% for name, declarations in klass.methods.items %}
+      {% for name, declarations in klass|items:'methods' %}
         {% with value=declarations|last %}
           <div
             x-data="{open: false}"
@@ -192,7 +192,7 @@
 
   {% if klass.everything %}
       <h2>Others</h2>
-      {% for name, declarations in klass.everything.items %}
+      {% for name, declarations in klass|items:'everything' %}
           {% for declaration in declarations %}
               <div class="method">
                   <h3>{{ name }}{{ declaration }}</h3>

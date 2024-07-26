@@ -1,5 +1,4 @@
 from django import template
-from django.conf import settings
 from django.utils.text import capfirst
 
 from django_classy_doc import settings as app_settings
@@ -55,5 +54,5 @@ def class_name(value):
 
 
 @register.filter
-def field_items(value):
-    return value['fields'].items()
+def items(value, key):
+    return value[key].items()
