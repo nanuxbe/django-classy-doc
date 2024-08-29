@@ -176,7 +176,7 @@ def classify(klass, obj, name=None, mod=None, *ignored):
 
     if issubclass(obj, Model):
         klass['Meta'] = obj._meta.original_attrs
-    elif issubclass(obj, ModelForm):
+    elif issubclass(obj, ModelForm) and hasattr(obj, 'Meta'):
         klass['Meta'] = {
             attr: str(getattr(obj.Meta, attr))
             for attr in dir(obj.Meta)
