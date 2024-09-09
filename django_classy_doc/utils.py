@@ -72,6 +72,8 @@ def tf_methods(attr):
             source = inspect.getsourcefile(func)
         except TypeError:
             pass
+        except OSError:
+            pass
 
     except AttributeError as e:
         docstring = f'{e}'
