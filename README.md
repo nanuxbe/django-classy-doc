@@ -223,3 +223,87 @@ CLASSY_DOC_MODULE_TYPES = [
 CLASSY_DOC_KNOWN_APPS = {}
 ```
 
+# MkDocs Integration
+
+## mkdocstrings Handler
+
+*django-classy-doc* provides a custom handler for [mkdocstrings](https://mkdocstrings.github.io/) that allows you to embed class documentation directly in your MkDocs-based documentation.
+
+### Installation
+
+Install with the mkdocs extra:
+
+```bash
+pip install django-classy-doc[mkdocs]
+```
+
+### Configuration
+
+In your `mkdocs.yml`, configure the handler:
+
+```yaml
+plugins:
+  - mkdocstrings:
+      handlers:
+        classydoc:
+          # Handler options (all optional)
+          options:
+            show_source: true
+            show_mro: true
+            show_attributes: true
+            show_methods: true
+            show_fields: true
+            heading_level: 2
+```
+
+Make sure to set your `DJANGO_SETTINGS_MODULE` environment variable so the handler can access your Django configuration:
+
+```bash
+export DJANGO_SETTINGS_MODULE=myproject.settings
+```
+
+### Usage
+
+In your markdown files, use the `::: classydoc` directive to include class documentation:
+
+```markdown
+# My Model Documentation
+
+::: myapp.models.MyModel
+    handler: classydoc
+    options:
+      show_source: true
+      show_mro: true
+```
+
+The handler supports these options:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `show_source` | `true` | Display source code for methods |
+| `show_mro` | `true` | Display Method Resolution Order |
+| `show_attributes` | `true` | Display class attributes |
+| `show_methods` | `true` | Display methods with signatures |
+| `show_fields` | `true` | Display Django model fields |
+| `heading_level` | `2` | Starting heading level for sections |
+
+## Markdown Formatter
+
+For programmatic use, *django-classy-doc* provides a `MarkdownFormatter` class that generates mkdocs-compatible markdown from classified class data.
+
+### Usage
+
+```python
+from django_classy_doc.utils import build
+from django_classy_doc.formatters.markdown import MarkdownFormatter
+
+# Get class data
+klass_data = build('myapp.models.MyModel')
+
+# Format as markdown
+formatter = MarkdownFormatter(klass_data)
+markdown_content = formatter.format()
+```
+
+The formatter supports Google-style docstrings and will parse sections like Args, Returns, Examples, and Notes into properly formatted markdown.
+
