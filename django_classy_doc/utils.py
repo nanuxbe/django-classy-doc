@@ -15,10 +15,6 @@ from django.utils.html import escape
 from . import settings as app_settings
 
 
-if not hasattr(inspect, 'getargspec'):
-    inspect.getargspec = inspect.getfullargspec
-
-
 class DefaultOrderedDict(OrderedDict):
 
     def __init__(self, default_factory, *args, **kwargs):
@@ -56,14 +52,12 @@ def tf_methods(attr):
         func = getattr(attr[2], attr[0])
         docstring = pydoc.getdoc(attr[3])
 
-        # Get the attr arguments
+        # Get the method signature using inspect.signature()
         try:
-            args, varargs, keywords, defaults = inspect.getargspec(func)
-            arguments = inspect.formatargspec(args, varargs=varargs, varkw=keywords, defaults=defaults)
-        except TypeError:
-            pass
-        except ValueError:
-            # ToDo: use inspect.signature() instead of inspect.getargspec()
+            sig = inspect.signature(func)
+            arguments = str(sig)
+        except (TypeError, ValueError):
+            # Fallback for built-in functions or other edge cases
             pass
 
         # Get source line details

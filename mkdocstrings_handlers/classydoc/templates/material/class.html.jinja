@@ -1,0 +1,241 @@
+{#- Template for Django classes using ClassyDoc.
+
+This template renders a Django class with collapsible source code,
+method resolution order, attributes, methods, and fields.
+
+Context:
+  class_data (dict): The class documentation data from build_context().
+  config (dict): The configuration options.
+  heading_level (int): The HTML heading level to use.
+-#}
+
+<div class="doc doc-object doc-class doc-classydoc">
+  {% set class_name = class_data.name %}
+  {% set module = class_data.module %}
+  {% set html_id = module ~ "." ~ class_name %}
+
+  {# Main heading #}
+  {% filter heading(
+      heading_level,
+      role="class",
+      id=html_id,
+      class="doc doc-heading",
+      toc_label=class_name,
+    ) %}
+    <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>
+    <span class="doc doc-object-name doc-class-name">{{ class_name }}</span>
+  {% endfilter %}
+
+  <div class="doc doc-contents first">
+    {# Module path #}
+    <p class="doc-module-path">
+      <code>{{ module }}.{{ class_name }}</code>
+    </p>
+
+    {# Docstring #}
+    {% if class_data.docstring %}
+      {% set parsed_doc = class_data.docstring | parse_docstring %}
+      <div class="doc-docstring">
+        {# Summary #}
+        {% if parsed_doc.summary %}
+          <p>{{ parsed_doc.summary }}</p>
+        {% endif %}
+
+        {# Description #}
+        {% if parsed_doc.description %}
+          {{ parsed_doc.description | convert_markdown(heading_level + 1, html_id) }}
+        {% endif %}
+
+        {# Attributes from docstring #}
+        {% if parsed_doc.attributes %}
+          <h{{ heading_level + 1 }}>Class Attributes</h{{ heading_level + 1 }}>
+          <table>
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for attr in parsed_doc.attributes %}
+                <tr>
+                  <td><code>{{ attr.name }}</code></td>
+                  <td>{% if attr.type %}<code>{{ attr.type }}</code>{% else %}-{% endif %}</td>
+                  <td>{{ attr.description }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+
+        {# Examples #}
+        {% if parsed_doc.examples or parsed_doc.example %}
+          {% set examples = parsed_doc.examples or parsed_doc.example %}
+          <h{{ heading_level + 1 }}>Examples</h{{ heading_level + 1 }}>
+          {{ examples | convert_markdown(heading_level + 2, html_id ~ "-examples") }}
+        {% endif %}
+
+        {# Notes #}
+        {% if parsed_doc.notes or parsed_doc.note %}
+          {% set notes = parsed_doc.notes or parsed_doc.note %}
+          <h{{ heading_level + 1 }}>Notes</h{{ heading_level + 1 }}>
+          {{ notes | convert_markdown(heading_level + 2, html_id ~ "-notes") }}
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {# Method Resolution Order #}
+    {% if config.show_mro and class_data.ancestors %}
+      <div class="doc-mro">
+        <h{{ heading_level + 1 }} id="{{ html_id }}-mro">Method Resolution Order</h{{ heading_level + 1 }}>
+        <ol class="mro-list">
+          {% for ancestor in class_data.ancestors %}
+            {% if ancestor[1] != 'object' %}
+              <li><code>{{ ancestor[0] }}.{{ ancestor[1] }}</code></li>
+            {% endif %}
+          {% endfor %}
+        </ol>
+      </div>
+    {% endif %}
+
+    {# Attributes #}
+    {% if config.show_attributes and class_data.attributes %}
+      <div class="doc-attributes">
+        <h{{ heading_level + 1 }} id="{{ html_id }}-attributes">Attributes</h{{ heading_level + 1 }}>
+        <table class="doc-attributes-table">
+          <thead>
+            <tr>
+              <th>Attribute</th>
+              <th>Value</th>
+              <th>Defined in</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for attr_name, declarations in class_data.attributes.items() | sort %}
+              {% if declarations %}
+                {% set first_decl = declarations[0] if declarations is iterable else declarations %}
+                {% set value = first_decl.default if first_decl.default else first_decl.object | default('') %}
+                {% set defining_class = first_decl.defining_class %}
+                <tr>
+                  <td><code>{{ attr_name }}</code></td>
+                  <td><code>{{ value | format_value }}</code></td>
+                  <td>
+                    {% if defining_class is iterable and defining_class is not string %}
+                      <code>{{ defining_class[0] }}.{{ defining_class[1] }}</code>
+                    {% else %}
+                      <code>{{ defining_class }}</code>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+
+    {# Methods #}
+    {% if config.show_methods and class_data.methods %}
+      <div class="doc-methods">
+        <h{{ heading_level + 1 }} id="{{ html_id }}-methods">Methods</h{{ heading_level + 1 }}>
+        {% for method_name, declarations in class_data.methods.items() | sort %}
+          {% if declarations %}
+            {% set decl_list = declarations if declarations is iterable else [declarations] %}
+            {% set first_decl = decl_list[0] %}
+            {% set arguments = first_decl.arguments if first_decl.arguments else '' %}
+            {% set method_type = first_decl.type | default('method') %}
+            {% set method_id = html_id ~ "." ~ method_name %}
+
+            <div class="doc-method" id="{{ method_id }}">
+              <h{{ heading_level + 2 }} class="doc-method-heading">
+                <code>{{ method_name }}{% if arguments and 'property' not in method_type %}{{ arguments }}{% endif %}</code>
+                {% if method_type == 'class method' %}
+                  <span class="doc-label">@classmethod</span>
+                {% elif method_type == 'static method' %}
+                  <span class="doc-label">@staticmethod</span>
+                {% elif 'property' in method_type %}
+                  <span class="doc-label">@property</span>
+                {% endif %}
+              </h{{ heading_level + 2 }}>
+
+              {# Defining class #}
+              {% set defining_class = first_decl.defining_class %}
+              {% if defining_class %}
+                <p class="doc-defined-in">
+                  Defined in:
+                  {% if defining_class is iterable and defining_class is not string %}
+                    <code>{{ defining_class[0] }}.{{ defining_class[1] }}</code>
+                  {% else %}
+                    <code>{{ defining_class }}</code>
+                  {% endif %}
+                </p>
+              {% endif %}
+
+              {# Method docstring #}
+              {% if first_decl.docstring %}
+                <div class="doc-method-docstring">
+                  {{ first_decl.docstring | convert_markdown(heading_level + 3, method_id) }}
+                </div>
+              {% endif %}
+
+              {# Source code - collapsible #}
+              {% if config.show_source %}
+                {% for decl in decl_list %}
+                  {% if decl.code %}
+                    <details class="mkdocstrings-source">
+                      <summary>
+                        Source code
+                        {% if decl.file %}
+                          in <code>{{ decl.file | basename }}</code>
+                          {% if decl.lines and decl.lines.start %}
+                            line {{ decl.lines.start }}
+                          {% endif %}
+                        {% endif %}
+                      </summary>
+                      <pre><code class="language-python">{{ decl.code | e }}</code></pre>
+                    </details>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {# Fields (for Django models) #}
+    {% if config.show_fields and class_data.fields %}
+      <div class="doc-fields">
+        <h{{ heading_level + 1 }} id="{{ html_id }}-fields">Fields</h{{ heading_level + 1 }}>
+        <table class="doc-fields-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Type</th>
+              <th>Related To</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for field_name, declarations in class_data.fields.items() | sort %}
+              {% if declarations %}
+                {% set first_decl = declarations[0] if declarations is iterable else declarations %}
+                <tr>
+                  <td><code>{{ field_name }}</code></td>
+                  <td><code>{{ first_decl.field_type | default('-') }}</code></td>
+                  <td>
+                    {% if first_decl.related %}
+                      <code>{{ first_decl.related[0] }}.{{ first_decl.related[1] }}</code>
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </div>
+</div>

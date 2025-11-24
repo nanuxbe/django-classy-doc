@@ -1,0 +1,133 @@
+/* ClassyDoc handler styles for mkdocstrings */
+
+.doc-classydoc {
+  margin-bottom: 2em;
+}
+
+.doc-classydoc .doc-module-path {
+  margin-bottom: 1em;
+  font-size: 0.9em;
+}
+
+.doc-classydoc .doc-module-path code {
+  background: var(--md-code-bg-color, #f5f5f5);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+}
+
+/* Method Resolution Order */
+.doc-classydoc .doc-mro {
+  margin: 1.5em 0;
+}
+
+.doc-classydoc .mro-list {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.doc-classydoc .mro-list li {
+  margin: 0.25em 0;
+}
+
+/* Tables */
+.doc-classydoc table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+
+.doc-classydoc th,
+.doc-classydoc td {
+  text-align: left;
+  padding: 0.5em;
+  border: 1px solid var(--md-default-fg-color--lightest, #ddd);
+}
+
+.doc-classydoc th {
+  background: var(--md-default-fg-color--lightest, #f5f5f5);
+  font-weight: 600;
+}
+
+.doc-classydoc td code {
+  background: transparent;
+  padding: 0;
+}
+
+/* Methods */
+.doc-classydoc .doc-method {
+  margin: 1.5em 0;
+  padding: 1em;
+  border: 1px solid var(--md-default-fg-color--lightest, #e0e0e0);
+  border-radius: 4px;
+}
+
+.doc-classydoc .doc-method-heading {
+  margin: 0 0 0.5em 0;
+  font-size: 1.1em;
+}
+
+.doc-classydoc .doc-method-heading code {
+  font-weight: 600;
+}
+
+.doc-classydoc .doc-label {
+  display: inline-block;
+  padding: 0.1em 0.4em;
+  font-size: 0.75em;
+  font-weight: normal;
+  border-radius: 3px;
+  background: var(--md-accent-fg-color, #448aff);
+  color: white;
+  margin-left: 0.5em;
+  vertical-align: middle;
+}
+
+.doc-classydoc .doc-defined-in {
+  font-size: 0.85em;
+  color: var(--md-default-fg-color--light, #666);
+  margin: 0.5em 0;
+}
+
+/* Source code details */
+.doc-classydoc .doc-source {
+  margin-top: 1em;
+  border: 1px solid var(--md-default-fg-color--lightest, #e0e0e0);
+  border-radius: 4px;
+}
+
+.doc-classydoc .doc-source summary {
+  padding: 0.5em 1em;
+  cursor: pointer;
+  background: var(--md-default-fg-color--lightest, #f5f5f5);
+  font-size: 0.85em;
+}
+
+.doc-classydoc .doc-source summary:hover {
+  background: var(--md-default-fg-color--lighter, #e8e8e8);
+}
+
+.doc-classydoc .doc-source pre {
+  margin: 0;
+  padding: 1em;
+  overflow-x: auto;
+}
+
+.doc-classydoc .doc-source code {
+  font-size: 0.85em;
+}
+
+/* Docstring sections */
+.doc-classydoc .doc-docstring,
+.doc-classydoc .doc-method-docstring {
+  margin: 0.5em 0;
+}
+
+.doc-classydoc .doc-docstring p:first-child,
+.doc-classydoc .doc-method-docstring p:first-child {
+  margin-top: 0;
+}
+
+.doc-classydoc .doc-docstring p:last-child,
+.doc-classydoc .doc-method-docstring p:last-child {
+  margin-bottom: 0;
+}

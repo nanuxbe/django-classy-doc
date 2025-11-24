@@ -204,7 +204,7 @@ CLASSY_DOC_KNOWN_APPS = {}
 ```
 
 
-## CDRF
+## CDF
 
 In order to replicate [CDF](https://cdf.9vo.lt), these are the settings you should set:
 

@@ -1,5 +1,5 @@
 import os
-from setuptools import setup
+from setuptools import setup, find_namespace_packages
 
 with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
     README = readme.read()
@@ -9,8 +9,12 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django_classy_doc',
-    version='0.0.8',
-    packages=['django_classy_doc'],
+    version='0.0.9',
+    packages=find_namespace_packages(include=[
+        'django_classy_doc',
+        'django_classy_doc.*',
+        'mkdocstrings_handlers.*',
+    ]),
     include_package_data=True,
     license='MIT License',  # example license
     description='Django package to generate ccbv.co.uk-style documentation for your own code',
@@ -40,6 +44,23 @@ setup(
     ],
     install_requires=[
         'Django>=3.2',
-    ]
+    ],
+    extras_require={
+        'mkdocs': [
+            'mkdocstrings>=0.20',
+            'mkdocs>=1.5',
+        ],
+    },
+    entry_points={
+        'mkdocstrings.handlers': [
+            'classydoc = mkdocstrings_handlers.classydoc:get_handler',
+        ],
+    },
+    package_data={
+        'mkdocstrings_handlers.classydoc': [
+            'templates/material/*.jinja',
+            'templates/material/*.css',
+        ],
+    },
 )
 

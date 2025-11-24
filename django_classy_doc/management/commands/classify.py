@@ -7,6 +7,7 @@ from django.template.loader import render_to_string
 
 from ...utils import build_context, build_list_of_documentables, get_index_context
 from ... import settings as app_settings
+from ...formatters.markdown import MarkdownFormatter, format_index
 
 
 def serve(port, output):
@@ -51,15 +52,28 @@ class Command(BaseCommand):
         parser.add_argument('-s', '--serve', action='store_true', dest='serve')
         parser.add_argument('--clean', action='store_true', dest='clean',
                             help='Clear html files from output directory before generating new files')
+        parser.add_argument('--format', '-f', action='store', dest='format',
+                            default='html', choices=['html', 'markdown'],
+                            help='Output format: html or markdown (default: html)')
+        parser.add_argument('--title', action='store', dest='title',
+                            default='API Reference',
+                            help='Title for the index page (markdown format only)')
+        parser.add_argument('--no-index', action='store_true', dest='no_index',
+                            help='Skip generating index file')
 
     def handle(self, *args, **options):
+        output_format = options['format']
+        file_extension = '.md' if output_format == 'markdown' else '.html'
+
         if options['clean']:
-            for filename in os.listdir(os.path.join(settings.BASE_DIR, options['output'])):
-                if not filename.endswith('.html'):
-                    continue
-                file_path = os.path.join(settings.BASE_DIR, options['output'], filename)
-                if os.path.isfile(file_path) or os.path.islink(file_path):
-                    os.unlink(file_path)
+            output_dir = os.path.join(settings.BASE_DIR, options['output'])
+            if os.path.exists(output_dir):
+                for filename in os.listdir(output_dir):
+                    if not filename.endswith(file_extension):
+                        continue
+                    file_path = os.path.join(output_dir, filename)
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
 
         klasses = options['klass']
         apps = collections.defaultdict(lambda: collections.defaultdict(list))
@@ -67,25 +81,65 @@ class Command(BaseCommand):
         if len(klasses) == 0:
             apps, klasses = build_list_of_documentables(apps)
 
+        # Collect all structures for markdown index
+        all_structures = []
+
         for klass in klasses:
             structure = build_context(klass)
             if structure is False:
                 continue
 
-            output = render_to_string('django_classy_doc/klass.html', {
-                'klass': structure,
-                'known_apps': app_settings.CLASSY_DOC_KNOWN_APPS,
-            })
+            if output_format == 'markdown':
+                # Use markdown formatter
+                formatter = MarkdownFormatter(structure, app_settings.CLASSY_DOC_KNOWN_APPS)
+                output_content = formatter.format()
+                all_structures.append(structure)
 
-            filename = 'classify.html'
-            if len(klasses) > 1:
-                filename = f'{klass}.html'
+                if len(klasses) == 1:
+                    filename = 'index.md'
+                else:
+                    name = structure["name"]
+                    # Use kebab-case if configured
+                    if getattr(app_settings, 'CLASSY_DOC_KEBAB_CASE_FILENAMES', False):
+                        import re
+                        # Handle acronyms properly (e.g., CSSAsset -> css-asset, not c-s-s-asset)
+                        name = re.sub(r'([A-Z]+)([A-Z][a-z])', r'\1-\2', name)
+                        name = re.sub(r'([a-z\d])([A-Z])', r'\1-\2', name)
+                        name = name.lower()
+                    filename = f'{name}.md'
+            else:
+                # Use HTML template
+                output_content = render_to_string('django_classy_doc/klass.html', {
+                    'klass': structure,
+                    'known_apps': app_settings.CLASSY_DOC_KNOWN_APPS,
+                })
+
+                filename = 'classify.html'
+                if len(klasses) > 1:
+                    filename = f'{klass}.html'
 
             with open(output_path(options['output'], filename), 'w') as f:
-                f.write(output)
+                f.write(output_content)
 
-        if len(klasses) > 1:
-            gen_index(apps, output_path(options['output']))
+        # Generate index
+        if len(klasses) > 1 and not options['no_index']:
+            if output_format == 'markdown':
+                # Generate markdown index
+                index_content = format_index(all_structures, title=options['title'])
+                index_filename = 'index.md'
+            else:
+                # Generate HTML index
+                index_content = render_to_string('django_classy_doc/index.html', get_index_context(apps))
+                index_filename = 'index.html'
+
+            with open(output_path(options['output'], index_filename), 'w') as f:
+                f.write(index_content)
 
         if options['serve']:
-            serve(options['port'], options['output'])
+            if output_format == 'markdown':
+                self.stdout.write(self.style.WARNING(
+                    'Serve option is not supported for markdown format. '
+                    'Use mkdocs serve instead.'
+                ))
+            else:
+                serve(options['port'], options['output'])
